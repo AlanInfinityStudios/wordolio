@@ -991,6 +991,8 @@ html.calm .screen, html.calm .sheet, html.calm .overlay, html.calm .tile.hinted,
 <script src="steps.js"></script>
 <script src="locks.js"></script>
 <script src="six.js"></script>
+<script src="walls_us.js"></script>
+<script src="boards_us.js"></script>
 <script>
 const GROUP_COLOURS = ["#FF5A3C", "#3E7BFA", "var(--green)", "#F5A300", "var(--purple)", "#00B2C9", "#FF7A1A", "#EC4899", "#5B6CFF", "#7CB82F", "#0EA5A0", "#E8456B", "#2E86DE", "#D97706", "#6366F1", "#16A34A"];
 const WALL_COLOURS = ["#3E7BFA", "var(--green)", "#F5A300", "#FF5A3C"];
@@ -1160,7 +1162,9 @@ function tr(text, vars = {}) {
 
 /* Players work through one path: every Easy level, then Medium, then Hard. French players have their own levels. */
 const DIFFS = ["Easy", "Medium", "Hard"];
-const LEVELS = () => isFR() ? BOARD_LEVELS_FR : BOARD_LEVELS;
+// US English players get American levels where the British one would not work, keeping the same place in the path.
+const US_BOARDS = () => BOARD_LEVELS.map((l, i) => typeof BOARD_US_LEVELS !== "undefined" && BOARD_US_LEVELS[i] ? { ...l, ...BOARD_US_LEVELS[i], us: true } : l);
+const LEVELS = () => isFR() ? BOARD_LEVELS_FR : isUS() ? US_BOARDS() : BOARD_LEVELS;
 const bkey = i => (isFR() ? "fr-board-" : "board-") + i;
 const PATH = () => LEVELS().map((_, i) => i).sort((a, b) => DIFFS.indexOf(LEVELS()[a].difficulty) - DIFFS.indexOf(LEVELS()[b].difficulty) || a - b);
 const levelNo = idx => PATH().indexOf(idx) + 1;
@@ -1698,12 +1702,15 @@ let B = null;
 
 function buildLevel(level, levelIdx) {
   const groups = [], tiles = [];
+  const swaps = isUS() && typeof BOARD_US_SWAPS !== "undefined" && !level.us && BOARD_US_SWAPS[levelIdx] || {};
+  // Each tile is swapped once, on its original text, so chains like Guard > Conductor > Bus pass can't happen.
+  const sw = t => swaps[t] ?? t, loc = t => swaps[t] ?? window.loc(t);
   function addGroup(spec, parent) {
     const g = { id: groups.length, name: loc(spec.name), pic: spec.pic || null, parent, memberTiles: [] };
     groups.push(g);
     spec.tiles.forEach(t => {
       if (typeof t === "object") g.memberTiles.push(addGroup(t, g.id));
-      else { const raw = parseTile(t), tile = { id: tiles.length, ...raw, label: loc(raw.label), parent: g.id, symbolOf: null }; tiles.push(tile); g.memberTiles.push(tile.id); }
+      else { const raw = parseTile(sw(t)), tile = { id: tiles.length, ...raw, label: swaps[t] != null ? raw.label : window.loc(raw.label), parent: g.id, symbolOf: null }; tiles.push(tile); g.memberTiles.push(tile.id); }
     });
     return g;
   }
@@ -1744,7 +1751,8 @@ function startBoard(levelIdx) {
     unravelled: new Set(),
   };
   const saved = store.get()["save-" + bkey(levelIdx)];
-  if (saved && saved.sig === tiles.length + ":" + groups.length) {
+  // A half-played level resumes only in the version it was started in (an American level has its own signature).
+  if (saved && saved.sig === tiles.length + ":" + groups.length + (level.us ? ":us" : "")) {
     Object.assign(B, { board: saved.board, lockedList: saved.lockedList, solved: new Set(saved.solved), pool: saved.pool,
       timeLeft: saved.timeLeft, elapsed: saved.elapsed, hintsUsed: saved.hintsUsed || 0, freezes: saved.freezes, hints: loadHints(saved) });
     syncHints();
@@ -1776,7 +1784,7 @@ function startBoard(levelIdx) {
 function saveBoard() {
   if (!B || B.over || B.busy) return;
   store.set("save-" + bkey(B.levelIdx), {
-    sig: B.tiles.length + ":" + B.groups.length, board: B.board, lockedList: B.lockedList, solved: [...B.solved], pool: B.pool,
+    sig: B.tiles.length + ":" + B.groups.length + (B.level.us ? ":us" : ""), board: B.board, lockedList: B.lockedList, solved: [...B.solved], pool: B.pool,
     timeLeft: B.timeLeft, elapsed: B.elapsed, hintsUsed: B.hintsUsed, freezes: B.freezes, hints: B.hints, hintTiles: B.hintTiles,
   });
 }
@@ -2227,16 +2235,20 @@ function bindDrag(board) {
    ===================================================================== */
 let W = null;
 
+// US English players get an American wall wherever the UK one needs British knowledge. Same level numbers either way.
+const wallFor = i => (isUS() && typeof WALLS_US !== "undefined" && WALLS_US[i]) || WALLS[i];
+const wallSig = i => WALLS[i].name + (wallFor(i) === WALLS[i] ? ":uk" : ":us");
 function startWall(idx) {
   leaveGame();
   markPlayed();
-  const wall = WALLS[idx];
+  const wall = wallFor(idx);
   const clues = [];
   wall.groups.forEach((g, gi) => g.tiles.forEach(text => clues.push({ id: clues.length, group: gi, text: locWall(text) })));
   W = { idx, wall, clues, order: shuffle(clues.map(c => c.id)), found: [], sel: [], lives: null,
         timeLeft: 180, over: false, busy: false, revealed: new Set(), credited: new Set(), endReason: "" };
+  // A half-played wall only resumes in the same version (UK or US); after a language switch it starts fresh.
   const saved = store.get()["save-wall-" + idx];
-  if (saved && saved.order.length === clues.length) {
+  if (saved && saved.order.length === clues.length && (saved.sig || WALLS[idx].name + ":uk") === wallSig(idx)) {
     Object.assign(W, { order: saved.order, found: saved.found, lives: saved.lives, timeLeft: saved.timeLeft });
     toast("Welcome back. Carrying on where you left off.");
   }
@@ -2246,7 +2258,7 @@ function startWall(idx) {
 }
 function saveWall() {
   if (!W || W.over) return;
-  store.set("save-wall-" + W.idx, { order: W.order, found: W.found, lives: W.lives, timeLeft: W.timeLeft });
+  store.set("save-wall-" + W.idx, { order: W.order, found: W.found, lives: W.lives, timeLeft: W.timeLeft, sig: wallSig(W.idx) });
 }
 
 function wallTick(dt) {
@@ -3029,19 +3041,34 @@ function stepsComplete() {
 let K = null;
 const lockNum = (lv, ch) => lv.key.charCodeAt(ch.charCodeAt(0) - 65) - 64;
 const pad2 = n => String(n).padStart(2, "0");
+// American spelling and words for Letter Lock phrases (the cipher key covers all 26 letters, so any text works).
+const LOCK_US = [[/\bgrey\b/gi, "gray"], [/\bneighbour/gi, "neighbor"], [/\bautumn\b/gi, "fall"], [/\bcrisps\b/gi, "chips"],
+  [/\bqueued\b/gi, "lined up"], [/\bqueue\b/gi, "line up"], [/\bharbour/gi, "harbor"], [/\barmour/gi, "armor"], [/\bflavours/gi, "flavors"],
+  [/\bpractised/gi, "practiced"], [/\bcentre/gi, "center"], [/\bholidays\b/gi, "vacations"], [/\bholiday\b/gi, "vacation"],
+  [/\bwellies\b/gi, "rain boots"], [/\bcaravan\b/gi, "camper"], [/\bsweets\b/gi, "candy"], [/\bbiscuits\b/gi, "cookies"],
+  [/\bthe chips are hot\b/gi, "the fries are hot"], [/\bcrispy chips\b/gi, "crispy fries"], [/\bpostman\b/gi, "mailman"],
+  [/\bbiscuit\b/gi, "cookie"], [/\bmum\b/gi, "mom"], [/\bcolour/gi, "color"], [/\bfavourite/gi, "favorite"], [/\bjumpers\b/gi, "sweaters"],
+  [/\bfizzy pop\b/gi, "soda pop"], [/\btorch\b/gi, "flashlight"], [/\bpostbox\b/gi, "mailbox"], [/\bpostwoman\b/gi, "mailwoman"], [/\bmarrow\b/gi, "squash"],
+  [/\bfootball match\b/gi, "soccer game"], [/\bwashing up\b/gi, "dishes"], [/\btheatre/gi, "theater"], [/\btravelled\b/gi, "traveled"]];
+function lockText(level) {
+  if (!isUS()) return level.text;
+  return LOCK_US.reduce((t, [re, us]) => t.replace(re, m => m[0] === m[0].toUpperCase() ? us[0].toUpperCase() + us.slice(1) : us), level.text);
+}
 function startLock(idx, daily = false) {
   leaveGame();
   markPlayed();
-  const level = daily ? dailyPuzzle("lock", idx) : LOCK_LEVELS[idx], text = level.text.toUpperCase();
+  const level = daily ? dailyPuzzle("lock", idx) : LOCK_LEVELS[idx], text = lockText(level).toUpperCase();
   const nums = [...new Set([...text].filter(c => /[A-Z]/.test(c)).map(c => lockNum(level, c)))];
   const answer = {}; [...text].forEach(c => { if (/[A-Z]/.test(c)) answer[lockNum(level, c)] = c; });
   K = { idx, daily, level, text, nums, answer, guess: {}, revealed: new Set(), hints: 0, checks: 0, clue: false, sel: null, over: false, msg: "" };
-  [...level.reveal].forEach(c => { const n = lockNum(level, c); K.revealed.add(n); K.guess[n] = c; });
+  [...level.reveal].forEach(c => { const n = lockNum(level, c); if (!nums.includes(n)) return; K.revealed.add(n); K.guess[n] = c; });
   const dcur = dayState("lock").cur;
   const saved = daily ? (dcur && dcur.k === idx ? dcur : null) : store.get()["save-lock-" + idx];
-  if (saved && saved.v === 1) {
-    Object.assign(K, { guess: { ...K.guess, ...saved.guess }, hints: saved.hints || 0, checks: saved.checks || 0, clue: !!saved.clue });
-    (saved.revealed || []).forEach(n => { K.revealed.add(n); K.guess[n] = K.answer[n]; });
+  // A half-played phrase only resumes if it is the same text (UK and US spellings can differ).
+  if (saved && saved.v === 1 && (saved.t || level.text.toUpperCase()) === text) {
+    const keep = Object.fromEntries(Object.entries(saved.guess || {}).filter(([n]) => nums.includes(+n)));
+    Object.assign(K, { guess: { ...K.guess, ...keep }, hints: saved.hints || 0, checks: saved.checks || 0, clue: !!saved.clue });
+    (saved.revealed || []).filter(n => nums.includes(n)).forEach(n => { K.revealed.add(n); K.guess[n] = K.answer[n]; });
     K.msg = "Welcome back. Carrying on where you left off.";
   }
   K.sel = K.nums.find(n => !K.guess[n]) ?? null;
@@ -3082,7 +3109,7 @@ function startLock(idx, daily = false) {
 }
 function saveLock() {
   if (!K || K.over) return;
-  const rec = { v: 1, guess: K.guess, revealed: [...K.revealed], hints: K.hints, checks: K.checks, clue: K.clue };
+  const rec = { v: 1, t: K.text, guess: K.guess, revealed: [...K.revealed], hints: K.hints, checks: K.checks, clue: K.clue };
   if (K.daily) { const st = dayState("lock"); st.cur = { k: K.idx, ...rec }; daySet("lock", st); } else store.set("save-lock-" + K.idx, rec);
 }
 function renderLock() {
@@ -3153,7 +3180,7 @@ function lockComplete() {
   const i = K.idx;
   const show = K.daily ? dailyResult : levelResult;
   setTimeout(() => K && K.idx === i && show("lock", i, "Code cracked!", "Here's the hidden phrase:", stars, [[h, "Hints used"], [c, "Answer checks"]],
-    `<p class="cracked">“${esc(K.level.text)}”</p>`), 700);
+    `<p class="cracked">“${esc(lockText(K.level))}”</p>`), 700);
 }
 
 // Save on the way out, so closing the app or switching away never loses progress.
@@ -3164,9 +3191,60 @@ document.addEventListener("visibilitychange", () => { if (document.hidden) { sav
 document.addEventListener("gesturestart", e => e.preventDefault());
 document.addEventListener("dblclick", e => e.preventDefault());
 
+/* Moving to wordolio.app. Saved progress belongs to one web address, so the old address hands it over:
+   one tap packs the progress into the link (after the #, which never leaves the device) and the new address unpacks it.
+   MOVE_LIVE stays false until wordolio.app is serving the game. */
+const MOVE_TO = "https://wordolio.app/", MOVE_LIVE = false;
+const OLD_HOME = location.hostname.endsWith("github.io");
+const b64url = bytes => btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+const unb64url = s => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/")), c => c.charCodeAt(0));
+async function packProgress() {
+  const json = new TextEncoder().encode(JSON.stringify(store.get()));
+  if (typeof CompressionStream === "undefined") return "j" + b64url(json);
+  const gz = await new Response(new Blob([json]).stream().pipeThrough(new CompressionStream("gzip"))).arrayBuffer();
+  return "z" + b64url(new Uint8Array(gz));
+}
+async function unpackProgress(s) {
+  const bytes = unb64url(s.slice(1));
+  if (s[0] === "j") return JSON.parse(new TextDecoder().decode(bytes));
+  return JSON.parse(await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"))).text());
+}
+// Same rule as cloud save: the newer copy wins, but a level finished on either copy stays finished.
+function mergeProgress(incoming) {
+  const local = store.get();
+  const merged = (incoming.updatedAt || 0) > (local.updatedAt || 0) ? { ...local, ...incoming } : { ...incoming, ...local };
+  Object.keys({ ...local, ...incoming }).filter(k => k.startsWith("done-")).forEach(k => { if (local[k] || incoming[k]) merged[k] = true; });
+  if (!local.profile && incoming.profile) merged.profile = incoming.profile;
+  storeData = merged;
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(merged)); } catch {}
+  cloud.push();
+}
+async function receiveMove() {
+  const m = location.hash.match(/^#move=([jz][A-Za-z0-9_-]+)$/);
+  if (!m) return false;
+  history.replaceState(null, "", location.pathname + location.search);
+  try { mergeProgress(await unpackProgress(m[1])); showHome(); toast(tr("Your progress has moved across. Welcome to wordolio.app!")); return true; }
+  catch { toast(tr("Sorry, that progress link did not work. Please try again from the old address.")); return false; }
+}
+async function moveProgress() { location.href = MOVE_TO + "#move=" + await packProgress(); }
+function offerMove() {
+  if (!OLD_HOME || !MOVE_LIVE || $(".move-ov")) return;
+  const s = store.get(), hasProgress = Object.keys(s).some(k => k !== "updatedAt" && k !== "profile");
+  if (!hasProgress) { location.replace(MOVE_TO); return; }
+  const ov = document.createElement("div"); ov.className = "overlay move-ov";
+  ov.innerHTML = `<div class="sheet" role="dialog" aria-modal="true">
+    <h2>${tr("Wordolio has a new home")}</h2>
+    <p>${tr("We have moved to wordolio.app. One tap takes you there with all your games, stars and streaks.")}</p>
+    <div class="actions"><button class="btn primary" id="moveGo">${tr("Move my progress")}</button></div>
+  </div>`;
+  document.body.appendChild(ov);
+  $("#moveGo", ov).onclick = () => { $("#moveGo", ov).disabled = true; moveProgress(); };
+}
+
 applyCalm();
 showHome();
 cloud.start();
+receiveMove().then(moved => { if (!moved) offerMove(); });
 
 if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
   window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
