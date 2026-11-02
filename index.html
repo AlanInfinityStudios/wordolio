@@ -537,7 +537,7 @@ h1, h2, h3, h4, .h { font-family: var(--head); letter-spacing: -.015em; }
 .share-opt { display: grid; justify-items: center; gap: 6px; font: 600 13px inherit; font-family: inherit; color: var(--ink); background: none; border: 0; padding: 4px 0; text-decoration: none; cursor: pointer; }
 .share-opt span { width: 48px; height: 48px; border-radius: 16px; display: grid; place-items: center; color: #fff; }
 .share-opt svg { width: 24px; height: 24px; }
-.invite-card { display: flex; align-items: center; gap: 14px; width: 100%; margin-top: 18px; padding: 16px 18px; border: 0; border-radius: 22px; background: var(--card-bg, #fff); box-shadow: var(--card); text-align: left; font: inherit; color: var(--ink); cursor: pointer; }
+.invite-card { display: flex; align-items: center; gap: 14px; width: 100%; margin-top: 14px; padding: 16px 18px; border: 0; border-radius: 22px; background: var(--card-bg, #fff); box-shadow: var(--card); text-align: left; font: inherit; color: var(--ink); cursor: pointer; }
 .invite-card > span:nth-child(2) { flex: 1; display: grid; gap: 2px; }
 .invite-card b { font-size: 16px; } .invite-card span span { color: var(--muted); font-size: 14px; }
 .invite-card .ico { width: 20px; height: 20px; color: var(--muted); }
@@ -1322,7 +1322,7 @@ const PATHS = {
   lock: '<rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
   home: '<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
   stats: '<path d="M6 20V12M12 20V5M18 20v-5"/>',
-  set: '<circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/>',
+  set: '<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>',
   flame: '<path d="M12 3c2 4 6 5 6 10a6 6 0 0 1-12 0c0-3 2-4 2-7 2 1 3 3 3 5 1-2 1-5 1-8z"/>',
   check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
   trophy: '<path d="M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 21h8M9.5 17h5"/>',
@@ -1574,10 +1574,12 @@ function showHome(first = false) {
     <section class="games featured" aria-label="${tr("Featured games")}">${boardCard}${wallCard}</section>
     <div class="games-head"><h2>${tr("Daily games")}</h2><span class="chip">${ic("cal")}${tr("Today")}, ${esc(todayLabel())}</span></div>
     <section class="games dailies">${fiveCard}${wheelCard}${stepsCard}${lockCard}</section>
-    ${english ? `<button class="invite-card" id="invite"><span class="dotico" style="background:#EFE7FB;color:#A552E8">${ic("share")}</span><span><b>Invite friends</b><span>Send Wordolio by WhatsApp, text, email or social media.</span></span>${ic("chevr")}</button>` : ""}
+    ${english ? `<button class="invite-card" id="invite"><span class="dotico" style="background:#EFE7FB;color:#A552E8">${ic("share")}</span><span><b>Invite friends</b><span>Send Wordolio by WhatsApp, text, email or social media.</span></span>${ic("chevr")}</button>
+    <button class="invite-card" id="feedback"><span class="dotico" style="background:#E3F6EE;color:#20B583">${ic("help")}</span><span><b>Send feedback</b><span>Tell us what you love, what went wrong, or what you'd like next.</span></span>${ic("chevr")}</button>` : ""}
   </div>${adSlot()}`;
   bindNav();
   if ($("#invite")) $("#invite").onclick = inviteFriends;
+  if ($("#feedback")) $("#feedback").onclick = sendFeedback;
   $("#modeBoard").onclick = () => startBoard(nb ?? pick(PATH()));
   if (english) {
     $("#modeWall").onclick = () => startWall(nw ?? Math.floor(Math.random() * WALLS.length));
@@ -1656,6 +1658,9 @@ function showSettings() {
         <button class="switch" id="calm" role="switch" aria-checked="${!!p.calm}" aria-label="${tr("Reduce motion")}"></button></div></section>
       ${isFR() ? "" : `<section class="panel">${head("bulb", GAMES.steps.badge, "Beta testers")}
         ${store.get().tester ? `<p class="note">Test shop is on for this device. Purchases are pretend, so no money is taken.</p>` : `<label class="field"><input id="tCode" maxlength="24" autocapitalize="characters" placeholder="Tester code" aria-label="Tester code"></label>`}</section>`}
+      ${isFR() ? "" : `<section class="panel">${head("help", GAMES.five.badge, "Feedback", "You're one of our first players, so we'd love to hear from you.")}
+        <div class="actions"><button class="btn primary" id="fbSend">Send feedback</button><button class="btn" id="fbInvite">Invite friends</button></div>
+        <p class="note">Opens your email app, addressed to ${FEEDBACK_EMAIL}.</p></section>`}
       <section class="panel">${head("share", GAMES.lock.badge, tr("Move your progress"), tr("Copy a code here, then paste it on another device or app."))}
         <div class="actions"><button class="btn" id="mvCopy">${tr("Copy progress code")}</button></div>
         <label class="field"><input id="mvPaste" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${tr("Paste a progress code")}" aria-label="${tr("Paste a progress code")}"></label></section>
@@ -1672,6 +1677,7 @@ function showSettings() {
   });
   $("#calm").onclick = () => { const on = !(profile() || {}).calm; save({ calm: on }); applyCalm(); $("#calm").setAttribute("aria-checked", on); };
   $("#mvCopy").onclick = copyProgress;
+  if ($("#fbSend")) { $("#fbSend").onclick = sendFeedback; $("#fbInvite").onclick = inviteFriends; }
   $("#mvPaste").addEventListener("input", e => pasteProgress(e.target.value));
   const tc = $("#tCode");
   if (tc) tc.addEventListener("input", e => { if (e.target.value.trim().toUpperCase() === TESTER_CODE) { store.set("tester", true); toast("Test shop turned on"); showSettings(); } });
@@ -2639,6 +2645,14 @@ async function shareText(text, title = "Share your result") {
   const more = $('[data-k="more"]', ov);
   if (more) more.onclick = async () => { try { await navigator.share({ text: full }); close(); } catch (e) { if (!e || e.name !== "AbortError") toast("Sharing isn't available here."); } };
 }
+// Beta feedback by email: opens the tester's own mail app with prompts and the device details filled in.
+const FEEDBACK_EMAIL = "feedback@wordolio.app", APP_VERSION = "beta 3 Nov 2026";
+function feedbackLink() {
+  const ua = navigator.userAgent, dev = isApple() ? (/iPhone/.test(ua) ? "iPhone" : "iPad") : /Android/.test(ua) ? "Android" : /Mac/.test(ua) ? "Mac" : /Windows/.test(ua) ? "Windows" : "Other";
+  const body = `What did you enjoy?\n\n\nWhat went wrong or felt confusing?\n\n\nAny ideas or wishes?\n\n\n---\nWordolio ${APP_VERSION} · ${dev} · ${innerWidth}x${innerHeight} · ${LANG_SHORT[lang()]}${isStandalone() ? " · home screen" : ""}`;
+  return `mailto:${FEEDBACK_EMAIL}?subject=${encodeURIComponent("Wordolio feedback" + (playerName() ? " from " + playerName() : ""))}&body=${encodeURIComponent(body)}`;
+}
+function sendFeedback() { stat("feedback", "Opened feedback email"); location.href = feedbackLink(); }
 const inviteFriends = () => shareText(`${playerName() ? `Hi, it's ${playerName()}! ` : ""}${INVITE_TEXT}`, "Invite friends");
 const bindShare = (ov, make) => { const b = $("#shareRes", ov); if (b) b.onclick = () => shareText(make()); };
 
