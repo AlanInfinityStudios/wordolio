@@ -24,6 +24,15 @@
    of their words scrambled (never more than one per group). It unscrambles
    when the group is found.
 
+   LINKING WORDS (Alan's rule, 2026-11-03)
+   A linking-word group (also called a missing-word or compound-word group)
+   needs the player to supply a hidden word, e.g. Sun___: Hat, Dial, Cream.
+   Never use them on Easy or Medium levels, and use no more than TWO in a
+   Hard level (sub-groups count). Every other group should be a plain
+   category the player can see straight away. Keep other wordplay (hidden
+   words, palindromes, anagram groups) to about three groups a level.
+   If you rework a published level, add rev: N so half-played saves restart.
+
    AMERICAN ENGLISH
    Write everything in British English. US_WORDS below swaps whole tiles
    and names for American players. If a word only changes in one place,
@@ -109,26 +118,27 @@ const BOARD_LEVELS = [
     { name: "Nuts", tiles: ["Almond", "Walnut", "Cashew", "Peanut", "Pecan"] },
     { name: "Fruit", tiles: ["Banana", "Mango", "Kiwi", "Peach", "Lime"] },
   ]},
-  { name: "Wordplay", difficulty: "Hard", time: null, groups: [
+  // Reworked 2026-11-03 (rev 2): Alan found the old version far too cryptic. Only two groups now need a linking word.
+  { name: "Head in the clouds", difficulty: "Hard", time: null, rev: 2, groups: [
     { name: "In the sky", tiles: [
-      sub("Sun___", "☀️", ["Flower", "Day", "Burn", "Glasses", "Dial"]),
-      sub("Moon___", "🌙", ["Beam", "Walk", "Shine", "Stone", "Lit"]),
+      sub("Birds", "🐦", ["Robin", "Sparrow", "Eagle", "Owl", "Swallow"]),
+      sub("Planets", "🪐", ["Mars", "Venus", "Jupiter", "Saturn", "Mercury"]),
       sub("Star___", "⭐", ["Fish", "Gazer", "Dust", "Struck", "Light"]),
-      sub("Cloud___", "☁️", ["Burst", "Nine", "Cover", "Less", "Computing"]),
+      sub("Aircraft", "✈️", ["Jet", "Glider", "Helicopter", "Airship", "Biplane"]),
       "Kite",
     ]},
     { name: "Body parts", tiles: [
-      sub("Hand___", "✋", ["Bag", "Shake", "Cuff", "Writing", "Book"]),
-      sub("Foot___", "🦶", ["Ball", "Print", "Path", "Note", "Step"]),
-      sub("Eye___", "👁️", ["Brow", "Lash", "Lid", "Sight", "Witness"]),
+      sub("Hand", "✋", ["Thumb", "Palm", "Knuckle", "Wrist", "Nail"]),
+      sub("Foot", "🦶", ["Heel", "Toe", "Sole", "Arch", "Ankle"]),
+      sub("Eye", "👁️", ["Lash", "Lid", "Pupil", "Iris", "Tear"]),
       sub("Ear___", "👂", ["Ring", "Wig", "Mark", "Drum", "Shot"]),
       "Knee",
     ]},
-    { name: "Colours", tiles: ["⚫|Black___", "⚪|White___", "🟢|Green___", "🔴|Red___", "Blue"] },
-    { name: "Hidden numbers", tiles: ["Often", "Weight", "Canine", "Lonely", "Bitten"] },
+    { name: "Colours", tiles: ["⚫|Black", "⚪|White", "🟢|Green", "🔴|Red", "Blue"] },
     { name: "Palindromes", tiles: ["Level", "Radar", "Kayak", "Civic", "Rotor"] },
-    { name: "___cake", tiles: ["Cup", "Pan", "Rock", "Fruit", "Carrot"] },
-    { name: "___ball", tiles: ["Snow", "Meat", "Hand", "Net", "Base"] },
+    { name: "Fish", tiles: ["Cod", "Salmon", "Trout", "Haddock", "Plaice"] },
+    { name: "Flowers", tiles: ["Rose", "Daisy", "Tulip", "Lily", "Poppy"] },
+    { name: "Ball games", tiles: ["Tennis", "Golf", "Rugby", "Cricket", "Hockey"] },
   ]},
   { name: "Great British", difficulty: "Hard", time: null, groups: [
     { name: "Christmas", tiles: [
@@ -187,26 +197,27 @@ const BOARD_LEVELS = [
     { name: "Drinks", tiles: ["Tea", "Cocoa", "Wine", "Lemonade", "Cola"] },
     { name: "Snacks", tiles: ["Crisps", "Nachos", "Pretzels", "Peanuts", "Olives"] },
   ]},
-  { name: "Hidden words", difficulty: "Hard", time: 12 * 60, groups: [
+  // Reworked 2026-11-03 (rev 2): no linking-word groups now; three wordplay groups, the rest plain.
+  { name: "Hidden words", difficulty: "Hard", time: 12 * 60, rev: 2, groups: [
     { name: "Around the home", tiles: [
-      sub("House___", "🏠", ["Boat", "Hold", "Work", "Wife", "Plant"]),
-      sub("Door___", "🚪", ["Bell", "Mat", "Step", "Knob", "Way"]),
-      sub("Window___", "🪟", ["Sill", "Box", "Pane", "Shopping", "Cleaner"]),
-      sub("Bed___", "🛏️", ["Room", "Rock", "Bug", "Time", "Spread"]),
+      sub("Kitchen", "🍳", ["Kettle", "Toaster", "Fridge", "Oven", "Sink"]),
+      sub("Bathroom", "🛁", ["Bath", "Shower", "Towel", "Toothbrush", "Mirror"]),
+      sub("Bedroom", "🛏️", ["Pillow", "Duvet", "Wardrobe", "Mattress", "Alarm clock"]),
+      sub("Garden", "🌷", ["Lawn", "Shed", "Hedge", "Patio", "Greenhouse"]),
       "Roof",
     ]},
     { name: "Weather", tiles: [
-      sub("Rain___", "🌧️", ["Coat", "Drop", "Forest", "Fall", "Check"]),
-      sub("Snow___", "❄️", ["Man", "Drift", "Flake", "Board", "Plough"]),
-      sub("Thunder___", "⚡", ["Bolt", "Clap", "Storm", "Struck", "Birds"]),
-      sub("Wind___", "🌬️", ["Mill", "Screen", "Sock", "Swept", "Breaker"]),
+      sub("Rain", "🌧️", ["Drizzle", "Puddle", "Umbrella", "Downpour", "Wellies"]),
+      sub("Snow", "❄️", ["Sledge", "Igloo", "Blizzard", "Snowflake", "Frost"]),
+      sub("Thunderstorm", "⚡", ["Lightning", "Thunder", "Storm cloud", "Flash", "Rumble"]),
+      sub("Wind", "🌬️", ["Gale", "Breeze", "Kite", "Windmill", "Gust"]),
       "Fog",
     ]},
     { name: "Hidden animals", tiles: ["Scatter", "Dogma", "Pirate", "Pigment", "Cowboy"] },
     { name: "Hidden body parts", tiles: ["Fearless", "Hipster", "Elegant", "Chinese", "Charmed"] },
     { name: "Palindromes", tiles: ["Level", "Radar", "Kayak", "Civic", "Rotor"] },
-    { name: "Hidden numbers", tiles: ["Often", "Weight", "Canine", "Lonely", "Bitten"] },
-    { name: "Anagrams of STOP", tiles: ["Pots", "Tops", "Spot", "Opts", "Post"] },
+    { name: "Fruit", tiles: ["Apple", "Banana", "Cherry", "Grape", "Lemon"] },
+    { name: "Musical instruments", tiles: ["Piano", "Violin", "Guitar", "Drum", "Trumpet"] },
   ]},
   { name: "Back to school", difficulty: "Easy", time: null, groups: [
     { name: "School lessons", tiles: [
@@ -316,24 +327,25 @@ const BOARD_LEVELS = [
     { name: "Currencies", tiles: ["Euro", "Dollar", "Yen", "Rupee", "Peso"] },
     { name: "Languages", tiles: ["French", "Spanish", "Mandarin", "Arabic", "Welsh"] },
   ]},
-  { name: "Double meanings", difficulty: "Hard", time: null, anagrams: true, groups: [
+  // Reworked 2026-11-03 (rev 2): one linking-word group (Sun___); the rest are plain or "things with..." groups.
+  { name: "Double meanings", difficulty: "Hard", time: null, anagrams: true, rev: 2, groups: [
     { name: "The elements", tiles: [
-      sub("Fire___", "🔥", ["Work", "Place", "Man", "Fly", "Wood"]),
-      sub("Water___", "💧", ["Fall", "Melon", "Proof", "Colour", "Front"]),
-      sub("Air___", "💨", ["Port", "Craft", "Mail", "Ship", "Wave"]),
-      sub("Earth___", "🌍", ["Quake", "Worm", "Ling", "Bound", "Works"]),
+      sub("Fire", "🔥", ["Flame", "Smoke", "Ember", "Spark", "Bonfire"]),
+      sub("Water", "💧", ["River", "Ocean", "Lake", "Stream", "Pond"]),
+      sub("Air", "💨", ["Breeze", "Balloon", "Bubble", "Oxygen", "Lungs"]),
+      sub("Earth", "🌍", ["Soil", "Mud", "Clay", "Worm", "Rock"]),
       "Metal",
     ]},
     { name: "Times of day", tiles: [
-      sub("Day___", "🌤️", ["Light", "Break", "Dream", "Time", "Trip"]),
-      sub("Night___", "🌙", ["Mare", "Club", "Gown", "Shift", "Owl"]),
-      sub("Morning___", "🌅", ["Glory", "Sickness", "Star", "Paper", "Show"]),
+      sub("Morning", "🌅", ["Breakfast", "Toast", "Alarm", "Dawn", "Cockerel"]),
+      sub("Afternoon", "🫖", ["Lunch", "Siesta", "Teatime", "Matinee", "Picnic"]),
+      sub("Night", "🌙", ["Owl", "Pyjamas", "Midnight", "Moon", "Bedtime"]),
       sub("Sun___", "☀️", ["Dial", "Flower", "Burn", "Glasses", "Rise"]),
       "Clock",
     ]},
-    { name: "Body parts", tiles: ["💪|Arm___", "🧠|Head___", "👃|Nose___", "🦵|Knee___", "Elbow"] },
+    { name: "Body parts", tiles: ["💪|Arm", "🧠|Brain", "👃|Nose", "🦵|Leg", "Elbow"] },
     { name: "Palindromes", tiles: ["Noon", "Madam", "Refer", "Stats", "Level"] },
-    { name: "Anagrams of LISTEN", tiles: ["Silent", "Enlist", "Tinsel", "Inlets", "Listen"] },
+    { name: "Things with wings", tiles: ["Aeroplane»Airplane", "Butterfly", "Angel", "Bee", "Dragon"] },
     { name: "Things with keys", tiles: ["Piano", "Map", "Keyboard", "Lock", "Typewriter"] },
     { name: "Things with teeth", tiles: ["Comb", "Saw", "Zip", "Cog", "Shark"] },
   ]},
@@ -626,26 +638,27 @@ const BOARD_LEVELS = [
     { name: "Story words", tiles: ["Once upon a time", "Happily ever after", "Moral", "Chapter", "The End"] },
     { name: "Peter Pan", tiles: ["Tinker Bell", "Captain Hook", "Neverland", "Wendy", "Lost Boys"] },
   ]},
-  { name: "Odd one in", difficulty: "Hard", time: null, groups: [
-    { name: "Words before and after", tiles: [
-      sub("Fire___", "🔥", ["Work", "Place", "Fly", "Man", "Wall"]),
-      sub("Water___", "💧", ["Fall", "Melon", "Proof", "Colour»Color", "Mark"]),
-      sub("Air___", "💨", ["Port", "Line", "Bag", "Craft", "Tight"]),
-      sub("Earth___", "🌍", ["Quake", "Worm", "Bound", "Ling", "Ware"]),
-      "Elements",
+  // Reworked 2026-11-03 (rev 2): one linking-word group (___ball); the hidden words are one theme, the rest plain.
+  { name: "Odd one in", difficulty: "Hard", time: null, rev: 2, groups: [
+    { name: "Games", tiles: [
+      sub("Chess", "♟️", ["King", "Queen", "Bishop", "Knight", "Rook"]),
+      sub("Cards", "🃏", ["Ace", "Joker", "Jack", "Deck", "Shuffle"]),
+      sub("Darts", "🎯", ["Bullseye", "Oche", "Treble", "Dartboard", "Flights"]),
+      sub("Football", "⚽", ["Goal", "Penalty", "Referee", "Offside", "Corner"]),
+      "Puzzle",
     ]},
     { name: "Hidden in plain sight", tiles: [
       sub("Hidden fruit", "🍐", ["Spear", "Plumber", "Slime", "Update", "Figure"]),
       sub("Hidden birds", "🐦", ["Crowd", "Henchman", "Bowling", "Emulate", "Pattern"]),
       sub("Hidden colours»Hidden colors", "🎨", ["Predator", "Tango", "Clambered", "Cyanide", "Rosette"]),
       sub("Hidden metals", "🔩", ["Stint", "Leader", "Ironic", "Marigold", "Bronzed"]),
-      "Puzzle",
+      "Camouflage",
     ]},
-    { name: "Palindromes", tiles: ["Noon", "Madam", "Refer", "Racecar", "Stats"] },
-    { name: "Anagrams of TEAS", tiles: ["Seat", "East", "Eats", "Sate", "Teas"] },
     { name: "___ball", tiles: ["Foot", "Dodge", "Basket", "Hand", "Pin"] },
-    { name: "Back___", tiles: ["Pack", "Bone", "Ground", "Log", "Gammon"] },
-    { name: "___stone", tiles: ["Brim", "Cobble", "Grave", "Mile", "Sand"] },
+    { name: "Breakfast", tiles: ["Toast", "Cereal", "Porridge»Oatmeal", "Bacon", "Eggs"] },
+    { name: "Trees", tiles: ["Oak", "Ash", "Elm", "Birch", "Willow"] },
+    { name: "Weather", tiles: ["Rain", "Snow", "Fog", "Hail", "Sleet"] },
+    { name: "Shapes", tiles: ["Circle", "Square", "Triangle", "Oval", "Star"] },
   ]},
   { name: "On the farm", difficulty: "Easy", time: null, anagrams: true, groups: [
     { name: "Farm animals", tiles: [
@@ -1030,7 +1043,7 @@ const BOARD_LEVELS = [
   ]},
 ];
 
-/* French levels (lang "fr"). Same rules as BOARD_LEVELS. A trial of 3 levels for now. */
+/* French levels (lang "fr"). Same rules as BOARD_LEVELS. Six levels for French testers: three Easy, then three Medium. */
 const BOARD_LEVELS_FR = [
   { name: "À la ferme", difficulty: "Easy", time: null, groups: [
     { name: "À la ferme", tiles: [
@@ -1076,6 +1089,51 @@ const BOARD_LEVELS_FR = [
     { name: "Villes françaises", tiles: ["Paris", "Lyon", "Marseille", "Nice", "Bordeaux"] },
     { name: "Instruments", tiles: ["Piano", "Guitare", "Violon", "Flûte", "Batterie"] },
     { name: "Le corps", tiles: ["Bras", "Jambe", "Tête", "Main", "Pied"] },
+  ]},
+  { name: "En ville", difficulty: "Medium", time: null, groups: [
+    { name: "En ville", tiles: [
+      sub("Boulangerie", "🥖", ["Baguette", "Croissant", "Pain au chocolat", "Brioche", "Chouquette"]),
+      sub("Pharmacie", "💊", ["Pansement", "Sirop", "Ordonnance", "Thermomètre", "Vitamines"]),
+      sub("Gare", "🚉", ["Quai", "Billet", "Horaire", "Wagon", "Contrôleur"]),
+      "🏦|Banque",
+      "Mairie",
+    ]},
+    { name: "Métiers", tiles: ["Médecin", "Pompier", "Facteur", "Boucher", "Plombier"] },
+    { name: "Instruments à vent", tiles: ["Flûte", "Trompette", "Clarinette", "Saxophone", "Hautbois"] },
+    { name: "Jours de la semaine", tiles: ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"] },
+    { name: "Mois", tiles: ["Janvier", "Février", "Avril", "Juin", "Octobre"] },
+    { name: "Fleuves", tiles: ["Seine", "Loire", "Rhône", "Garonne", "Dordogne"] },
+    { name: "Desserts", tiles: ["Crème brûlée", "Mousse", "Tarte Tatin", "Île flottante", "Clafoutis"] },
+  ]},
+  { name: "Au restaurant", difficulty: "Medium", time: 14 * 60, groups: [
+    { name: "Au restaurant", tiles: [
+      sub("Entrée", "🥗", ["Salade", "Soupe", "Terrine", "Œuf mayo", "Escargots"]),
+      sub("Plat", "🍲", ["Steak frites", "Pot-au-feu", "Ratatouille", "Cassoulet", "Blanquette"]),
+      sub("Dessert", "🍰", ["Sorbet", "Profiteroles", "Fondant", "Tiramisu", "Crêpe"]),
+      "🍷|Vin",
+      "Addition",
+    ]},
+    { name: "À table", tiles: ["Fourchette", "Couteau", "Cuillère", "Assiette", "Serviette"] },
+    { name: "Épices", tiles: ["Cannelle", "Muscade", "Safran", "Cumin", "Paprika"] },
+    { name: "Herbes", tiles: ["Basilic", "Persil", "Thym", "Romarin", "Ciboulette"] },
+    { name: "Boissons chaudes", tiles: ["Café", "Thé", "Tisane", "Chocolat chaud", "Cappuccino"] },
+    { name: "Pays", tiles: ["Japon", "Brésil", "Canada", "Égypte", "Inde"] },
+    { name: "Planètes", tiles: ["Mars", "Vénus", "Saturne", "Jupiter", "Mercure"] },
+  ]},
+  { name: "Le sport", difficulty: "Medium", time: null, anagrams: true, groups: [
+    { name: "Le sport", tiles: [
+      sub("Football", "⚽", ["Ballon", "But", "Gardien", "Arbitre", "Penalty"]),
+      sub("Tennis", "🎾", ["Raquette", "Filet", "Service", "Balle", "Set"]),
+      sub("Cyclisme", "🚴", ["Pédale", "Guidon", "Selle", "Casque", "Maillot jaune"]),
+      "🏊|Natation",
+      "Judo",
+    ]},
+    { name: "Animaux de la savane", tiles: ["Lion", "Girafe", "Zèbre", "Éléphant", "Hippopotame"] },
+    { name: "Oiseaux de mer", tiles: ["Mouette", "Goéland", "Albatros", "Pélican", "Cormoran"] },
+    { name: "Métaux", tiles: ["Or", "Argent", "Cuivre", "Fer", "Plomb"] },
+    { name: "Contes", tiles: ["Cendrillon", "Blanche-Neige", "Raiponce", "Pinocchio", "Peau d'Âne"] },
+    { name: "Nombres", tiles: ["Trois", "Sept", "Douze", "Vingt", "Cent"] },
+    { name: "Couleurs", tiles: ["Rouge", "Bleu", "Vert", "Jaune", "Violet"] },
   ]},
 ];
 
